@@ -84,16 +84,16 @@ router.post('/submit', authenticateToken, validate(submitKycSchema), async (req:
             userId: req.userId,
             documentType,
             documentNumber,
-            documentFront,
-            documentBack,
-            selfie,
-            firstName,
-            lastName,
-            dateOfBirth: new Date(dateOfBirth),
-            address,
-            ssn,
+            frontImageUrl: documentFront,
+            backImageUrl: documentBack,
+            selfieImageUrl: selfie,
+            metadata: {
+                firstName,
+                lastName,
+                dateOfBirth: new Date(dateOfBirth),
+                // Note: address and ssn are not currently in the model schema
+            },
             status: 'pending',
-            submittedAt: new Date()
         });
 
         // Update user status

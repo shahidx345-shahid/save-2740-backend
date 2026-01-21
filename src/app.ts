@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
+import { connectDB } from './config/db';
 
 // Import routes
 import authRoutes from './routes/auth.routes';
@@ -45,6 +47,24 @@ const app: Application = express();
 
 // Request ID for tracking
 app.use(requestId);
+
+// Database connection middleware for Serverless/Vercel
+// This ensures DB is connected before handling any request
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+    if (mongoose.connection.readyState === 1) {
+        return next();
+    }
+    try {
+        await connectDB();
+        next();
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error: Database connection failed'
+        });
+    }
+});
 
 // Security middleware
 app.use(helmet());
